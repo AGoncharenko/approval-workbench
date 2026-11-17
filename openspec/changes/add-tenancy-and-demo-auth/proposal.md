@@ -6,7 +6,7 @@ Every later feature depends on knowing who the actor is and which company they b
 
 ## What Changes
 
-- Companies and users, where each user belongs to exactly one company and has one role: `requester`, `approver` or `admin`.
+- Companies and users, where each user belongs to exactly one company, has a display name, and has one role: `requester`, `approver` or `admin`.
 - Email/password sign-in built with the Rails 8 authentication generator (`bin/rails generate authentication`):
   - `has_secure_password` (bcrypt);
   - a DB-backed `sessions` table;

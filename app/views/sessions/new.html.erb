@@ -1,0 +1,23 @@
+<h1>Sign in <small>(demo)</small></h1>
+<p>Demo environment: all data is synthetic.</p>
+
+<%= tag.div(flash[:alert], style: "color:red", role: "alert") if flash[:alert] %>
+<%= tag.div(flash[:notice], style: "color:green", role: "status") if flash[:notice] %>
+
+<%= form_with url: session_path do |form| %>
+  <%= form.label :email_address, "Email address" %>
+  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %><br>
+  <%= form.label :password %>
+  <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72 %><br>
+  <%= form.submit "Sign in" %>
+<% end %>
+
+<% unless Rails.env.production? %>
+  <h2>Demo accounts</h2>
+  <p>Every account uses the demo password from the README.</p>
+  <ul>
+    <% User.eager_load(:company).order("companies.name", :email_address).each do |user| %>
+      <li><%= user.email_address %> &mdash; <%= user.role %>, <%= user.company.name %></li>
+    <% end %>
+  </ul>
+<% end %>

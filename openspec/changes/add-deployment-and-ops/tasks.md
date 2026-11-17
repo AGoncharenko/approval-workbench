@@ -50,7 +50,7 @@
 
 ## 5. CI
 
-- [ ] 5.1 Extend `.github/workflows/ci.yml` with RSpec on a Postgres 18 service plus headless Chrome, and keep the generated Brakeman, bundler-audit and RuboCop jobs. Verify: the first pushed run is green, and a deliberately failing spec turns it red.
+- [ ] 5.1 Extend `.github/workflows/ci.yml` with RSpec on a Postgres 18 service plus headless Chrome, running `bin/rails tailwindcss:build` before RSpec, and keep the generated Brakeman, bundler-audit and RuboCop jobs. Verify: the first pushed run is green, and a deliberately failing spec turns it red.
 
 ## 6. Secrets hygiene
 

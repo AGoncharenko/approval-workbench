@@ -1,24 +1,28 @@
-# README
+# Approval workbench
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Accounts-payable invoice approval workbench (Rails 8.1, Ruby 4.0, PostgreSQL 18). All data is synthetic.
 
-Things you may want to cover:
+## Local setup
 
-* Ruby version
+PostgreSQL 18 is expected on `localhost:5433` (override with `PGPORT`).
 
-* System dependencies
+```sh
+bin/rails db:prepare db:seed
+bin/dev
+bundle exec rspec
+```
 
-* Configuration
+## Demo accounts
 
-* Database creation
+Every seeded account uses the demo password `demo-password-2026`, unless `DEMO_PASSWORD` was set when the seeds were loaded.
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+| Email | Role | Company |
+| --- | --- | --- |
+| requester@acme.example.com | requester | Acme Industries |
+| approver1@acme.example.com | approver | Acme Industries |
+| approver2@acme.example.com | approver | Acme Industries |
+| admin@acme.example.com | admin | Acme Industries |
+| requester@globex.example.com | requester | Globex Trading |
+| approver1@globex.example.com | approver | Globex Trading |
+| approver2@globex.example.com | approver | Globex Trading |
+| admin@globex.example.com | admin | Globex Trading |
