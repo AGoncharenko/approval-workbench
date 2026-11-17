@@ -53,3 +53,4 @@ This is a greenfield Rails 8.1 app on Ruby 4.0. Action Mailer was skipped at gen
 - [A demo password is documented and public on the deployed preview] → All data is synthetic. Override it with `DEMO_PASSWORD` on a deploy. The sign-in page is labelled demo. Real deployments would use SSO.
 - [A developer forgets to scope a query] → A request spec checks cross-tenant 404s for every invoice route.
 - [`rate_limit` uses `Rails.cache` (Solid Cache), which a multi-node deploy shares through the DB] → That's acceptable. It's noted in the operations docs.
+- [Sessions never expire, because the generator sets a permanent cookie and nothing deletes old `sessions` rows] → Accepted for the demo: sign-out and user deletion still revoke immediately. Listed as an omission with its next step (idle and absolute timeout, plus a recurring cleanup job) in `add-deployment-and-ops` task 7.2.

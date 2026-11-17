@@ -87,7 +87,8 @@
     - keyset pagination;
     - idempotency-key expiry;
     - SSO;
-    - paid-plan backups.
+    - paid-plan backups;
+    - session expiry and cleanup: the generator's cookie is permanent, so sessions last until sign-out. Add an idle and absolute timeout, plus a recurring Solid Queue job that deletes expired `sessions` rows.
 
   Verify: no template placeholder text remains, and every brief "non-negotiable behavior" maps to a decision or a spec.
 - [ ] 7.3 Brief traceability check: a table in the README maps each non-negotiable and edge case from `docs/brief/h1-approval-workbench.md` to the spec requirement and the RSpec file that proves it. Verify: every row links to an existing spec file, and the specs are green.
