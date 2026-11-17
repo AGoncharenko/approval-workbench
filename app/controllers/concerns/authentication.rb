@@ -30,7 +30,8 @@ module Authentication
     end
 
     def request_authentication
-      session[:return_to_after_authenticating] = request.url
+      # Only a GET can be replayed by the redirect after sign-in; a POST URL (e.g. a transition) would 404.
+      session[:return_to_after_authenticating] = request.url if request.get? || request.head?
       redirect_to new_session_path
     end
 

@@ -82,6 +82,25 @@ RSpec.describe "Open pages refresh when an invoice changes", type: :system do
     expect(invoice.reload).to have_attributes(status: "rejected", version: 6)
   end
 
+  it "keeps the user's own outcome notice when a refresh arrives after it" do
+    using_session(:bob) do
+      open_as(bob, invoice_path(invoice))
+      fill_in "Reason for rejection (required)", with: "No purchase order"
+    end
+    approve_as_alice
+
+    using_session(:bob) do
+      click_on "Reject"
+      expect(page).to have_css("#notice", text: /Not applied: this invoice changed since you opened it/)
+    end
+    invoice.update!(vendor_name: "Renamed Later") # another change: a refresh signal that lands after Bob's answer
+
+    using_session(:bob) do
+      expect(page).to have_css("h1", text: "Renamed Later") # the refresh was applied
+      expect(page).to have_css("#notice", text: /Not applied: this invoice changed since you opened it/)
+    end
+  end
+
   it "refreshes the list, still filtered by the viewer's visibility" do
     requester = create(:user, company:)
     own = create(:invoice, company:, submitted_by: requester, vendor_name: "Own Draft")

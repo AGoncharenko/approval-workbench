@@ -37,8 +37,9 @@
 
 <section aria-labelledby="history-heading" class="mt-8 max-w-2xl">
   <h2 id="history-heading" class="text-lg font-semibold">Approval history</h2>
-  <% if @invoice.approval_history.any? %>
-    <ol class="mt-2 space-y-2"><%= render partial: "invoices/approval_event", collection: @invoice.approval_history %></ol>
+  <% history = @invoice.approval_history.to_a %>
+  <% if history.any? %>
+    <ol class="mt-2 space-y-2"><%= render partial: "invoices/approval_event", collection: history %></ol>
   <% else %>
     <p class="mt-2 text-slate-700">No history yet.</p>
   <% end %>

@@ -18,6 +18,12 @@ RSpec.describe TransitionInvoice do
     expect(IdempotencyKey.count).to eq(0)
   end
 
+  it "reads the expected version as base 10, so a leading zero is not octal" do
+    invoice.update_columns(version: 10)
+    expect(run(expected_version: "010").outcome).to eq(:applied)
+    expect(invoice.reload.version).to eq(11)
+  end
+
   it "approves a pending invoice, bumps the version and writes one event" do
     result = run
     expect(result.outcome).to eq(:applied)

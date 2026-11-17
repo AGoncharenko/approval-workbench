@@ -15,7 +15,7 @@ class TransitionInvoice
     @actor = actor
     @invoice_uuid = invoice_uuid.to_s
     @action = action.to_s
-    @expected_version = Integer(expected_version, exception: false)
+    @expected_version = Integer(expected_version.to_s, 10, exception: false) # base 10: "010" is not octal, "0x10" not hex
     @key = idempotency_key.to_s
     @reason = reason.to_s.strip.presence
   end

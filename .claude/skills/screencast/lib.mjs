@@ -104,6 +104,7 @@ async function ripple(driver, el) {
     if (!document.getElementById('_sc_ripple_style')) {
       const s = document.createElement('style');
       s.id = '_sc_ripple_style';
+      s.nonce = document.querySelector('meta[name="csp-nonce"]')?.content || ''; // the app's CSP allows nonce'd styles only
       s.textContent = '@keyframes _sc_ripple{0%{transform:translate(-50%,-50%) scale(.3);opacity:1}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}' +
         '._sc_dot{position:absolute;width:40px;height:40px;border-radius:50%;background:rgba(255,80,0,.75);pointer-events:none;z-index:2147483647;animation:_sc_ripple .55s ease-out forwards}';
       document.head.appendChild(s);

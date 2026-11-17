@@ -33,6 +33,19 @@ RSpec.describe "Sessions" do
     expect(response).to redirect_to(new_session_path)
   end
 
+  it "returns to the requested page after sign-in for a GET, but not to a POST-only URL" do
+    invoice = create(:invoice, company: user.company)
+    get invoice_path(invoice)
+    sign_in_as user
+    expect(response).to redirect_to(invoice_url(invoice))
+
+    delete session_path
+    post invoice_transitions_path(invoice), params: { transition: { action: "submit" } }
+    expect(response).to redirect_to(new_session_path)
+    sign_in_as user
+    expect(response).to redirect_to(root_url)
+  end
+
   it "leaves the health check public" do
     get health_check_path
     expect(response).to have_http_status(:ok)

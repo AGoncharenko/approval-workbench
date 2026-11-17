@@ -32,6 +32,13 @@ RSpec.describe User do
     expect { user.update_column(:company_id, nil) }.to raise_error(ActiveRecord::NotNullViolation)
   end
 
+  it "reports a taken email address as a field error, matching it after normalization" do
+    create(:user, email_address: "taken@example.com")
+    duplicate = build(:user, email_address: " Taken@Example.com ")
+    expect(duplicate).not_to be_valid
+    expect(duplicate.errors[:email_address]).to include("has already been taken")
+  end
+
   it "normalizes the email address" do
     expect(build(:user, email_address: " Someone@Example.COM ").email_address).to eq("someone@example.com")
   end

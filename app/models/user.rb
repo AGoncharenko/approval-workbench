@@ -9,6 +9,7 @@ class User < ApplicationRecord
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   validates :name, presence: true, length: { maximum: 100 }
+  validates :email_address, presence: true, uniqueness: true # the DB unique index stays the backstop
 
   def to_param = uuid
 end

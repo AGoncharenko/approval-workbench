@@ -6,7 +6,8 @@
   conflict: "bg-pending-bg text-pending-fg border-pending-fg/40",
   error: "bg-rejected-bg text-rejected-fg border-rejected-fg/40"
 }.fetch(variant.to_sym) %>
-<div id="notice" role="status" aria-live="polite" aria-atomic="true">
+<div id="notice" role="status" aria-live="polite" aria-atomic="true"
+  data-controller="notice" data-action="turbo:before-morph-element->notice#keep turbo:submit-start@document->notice#clear">
   <% if message.present? %>
     <p class="mb-6 rounded-md border px-4 py-3 text-sm font-medium <%= classes %>"><%= message %></p>
   <% end %>

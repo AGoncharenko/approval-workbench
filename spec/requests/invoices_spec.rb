@@ -132,6 +132,9 @@ RSpec.describe "Invoices" do
     end
 
     describe "not found" do
+      # The CSP nonce is random per response; everything else must be byte-identical.
+      def without_nonce(html) = html.gsub(/(nonce=|name="csp-nonce" content=)"[^"]*"/, '\\1""')
+
       let(:missing_body) do
         sign_in_as(approver)
         get invoice_path(SecureRandom.uuid)
@@ -150,7 +153,7 @@ RSpec.describe "Invoices" do
         body = missing_body
         get invoice_path(foreign)
         expect(response).to have_http_status(:not_found)
-        expect(response.body).to eq(body)
+        expect(without_nonce(response.body)).to eq(without_nonce(body))
         expect(response.body).not_to include("Secret Foreign Vendor")
       end
 
@@ -158,7 +161,7 @@ RSpec.describe "Invoices" do
         body = missing_body
         get "/invoices/#{invoice.id}"
         expect(response).to have_http_status(:not_found)
-        expect(response.body).to eq(body)
+        expect(without_nonce(response.body)).to eq(without_nonce(body))
       end
 
       it "hides another requester's invoice and every draft from non-authors" do
