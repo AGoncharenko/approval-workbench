@@ -1,0 +1,9 @@
+{
+  "name": "workbench-screencast",
+  "private": true,
+  "type": "module",
+  "description": "Narrated Selenium screencasts of the approval workbench (see SKILL.md).",
+  "dependencies": {
+    "selenium-webdriver": "^4.27.0"
+  }
+}

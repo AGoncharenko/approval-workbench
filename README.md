@@ -8,6 +8,12 @@ An accounts-payable invoice approval workbench. Requesters submit invoices, appr
 - **Setup/run command if no preview:** `docker compose up --build`, then open <http://localhost:3000>. It needs Docker only: no account and no secret.
 - **Demo password:** every seeded account uses `demo-password-2026`, unless `DEMO_PASSWORD` was set when the seeds ran. On the hosted preview it is the value entered on Render.
 
+### Screencast (1.5 minutes, narrated, with subtitles)
+
+[![Two approvers decide the same invoice: the stale rejection is refused with a conflict](docs/screencast/approval_conflict.png)](docs/screencast/approval_conflict.mp4)
+
+[Watch the screencast](docs/screencast/approval_conflict.mp4). Blair (left) and Alex (right) open the same pending invoice. Alex approves, Blair's page refreshes by itself and keeps the typed reason, and Blair's stale **Reject** is refused with *"Not applied: this invoice changed since you opened it…"*. The admin then sees a single approval in the audit history. It was recorded against the Docker Compose app with `.claude/skills/screencast/examples/approval_conflict.mjs` (see `.claude/skills/screencast/SKILL.md` to record another workflow).
+
 ### Five-minute demo path
 
 1. **Wake the preview.** Open `/up` about a minute before the demo. The free instance sleeps after 15 minutes idle, and the first request takes about a minute. A blank 200 page means the app and the database are up.
