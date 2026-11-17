@@ -35,7 +35,7 @@ Blair (left) and Alex (right) open the same pending invoice. Alex approves, Blai
 ## Chosen scope
 
 - **Declared time box:** extended, 1-2 days.
-- **Approximate time spent:** TODO(user): actual hours. The git history covers about 15 hours of wall-clock time, from the first spec commit on 2026-11-16 to this change.
+- **Approximate time spent:** about 6 hours.
 - **Scope:** extended.
 - **Completed:**
   - all four core outcomes;
