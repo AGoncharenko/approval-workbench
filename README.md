@@ -4,7 +4,7 @@ An accounts-payable invoice approval workbench. Requesters submit invoices, appr
 
 ## Demo
 
-- **Preview URL:** TODO(user): the Render URL after the first Blueprint deploy (for example `https://workbench-xxxx.onrender.com`). The free database expires 30 days after it is created (see [Deploy runbook](#deploy-runbook)). If the preview is gone, use the compose command below.
+- **Preview URL:** <https://workbench-bmwi.onrender.com> (free tier: open `/up` first and allow about a minute to wake). The free database expires 30 days after it is created (see [Deploy runbook](#deploy-runbook)). If the preview is gone, use the compose command below.
 - **Setup/run command if no preview:** `docker compose up --build`, then open <http://localhost:3000>. It needs Docker only: no account and no secret.
 - **Demo password:** every seeded account uses `demo-password-2026`, unless `DEMO_PASSWORD` was set when the seeds ran. On the hosted preview it is the value entered on Render.
 
@@ -136,7 +136,7 @@ CI (`.github/workflows/ci.yml`) runs on every push and pull request: RSpec again
    `DATABASE_URL` is filled from the database's connection string.
 4. Apply. On start, the entrypoint runs `db:prepare` (loads `db/structure.sql` on the empty database) and `db:seed`, then starts Puma on `$PORT`. Render routes traffic only once `/up` returns 200.
 
-- **Database created on:** TODO(user): date of the first Blueprint deploy. It expires 30 days later and is deleted after a further 14-day grace period.
+- **Database created on:** 2026-11-17. It expires on 2026-12-17 and is deleted after a further 14-day grace period (2026-12-31).
 
 ### Later deploys and migrations
 

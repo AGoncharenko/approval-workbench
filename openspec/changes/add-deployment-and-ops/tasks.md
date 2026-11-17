@@ -18,7 +18,7 @@
 
 ## 4. Render
 
-- [ ] 4.1 `render.yaml` Blueprint:
+- [x] 4.1 `render.yaml` Blueprint:
   - free Postgres 18 database;
   - free Docker web service with `healthCheckPath: /up`, using the image's own `CMD` (`./bin/rails server`) rather than a `dockerCommand` override;
   - `DATABASE_URL` from `connectionString`;
@@ -26,7 +26,7 @@
   - `WEB_CONCURRENCY=0`, `RAILS_MAX_THREADS=3`, `SOLID_QUEUE_IN_PUMA=1`.
 
   Verify: the Blueprint is accepted by Render's validation on creation, and `git grep -nE 'RAILS_MASTER_KEY|DEMO_PASSWORD' render.yaml` shows keys only, no values.
-- [ ] 4.2 First hosted deploy, done only with the user's go-ahead, because it needs a pushed GitHub repo and the user's Render account. Verify: the preview URL's `/up` returns 200, demo sign-in works, and an approval shows in the admin audit history.
+- [x] 4.2 First hosted deploy, done only with the user's go-ahead, because it needs a pushed GitHub repo and the user's Render account. Verify: the preview URL's `/up` returns 200, demo sign-in works, and an approval shows in the admin audit history.
 - [ ] 4.3 Check rollback on the free plan: deploy a trivial change, then roll back from the dashboard. Verify: the previous deploy serves traffic. If rollback isn't offered on free, document `git revert` and push instead.
 - [ ] 4.4 README deploy runbook:
   - Blueprint creation steps;
