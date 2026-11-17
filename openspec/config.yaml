@@ -1,0 +1,19 @@
+schema: spec-driven
+
+context: |
+  Take-home: accounts-payable invoice approval workbench (brief in docs/brief/h1-approval-workbench.md).
+  Stack: Ruby 4.0, Rails 8, PostgreSQL 18, Hotwire (server-rendered), RSpec + FactoryBot (factories in spec/factories, no fixtures), Render free tier deploy (Docker runtime, single Postgres database) with a Docker Compose fallback; no Kamal.
+  All data is synthetic. A company is the tenant boundary.
+  Non-negotiable invariants every change must preserve:
+    - No read or mutation across companies via URL, body, or client state (respond 404, never leak existence).
+    - Refusal codes: not visible to the actor -> 404; visible but action not allowed -> 403; status/version changed -> 409.
+    - Server re-checks actor role and current state on every state change; hidden buttons are UX only.
+    - Money is integer minor units plus ISO-4217 currency; never Float.
+    - Every state transition writes an audit event in the same DB transaction.
+    - Stale (expected_version mismatch) or duplicate (idempotency key) commands never apply twice.
+
+rules:
+  proposal:
+    - State what is out of scope.
+  tasks:
+    - Every task group ends with the RSpec specs that prove it.

@@ -1,0 +1,7 @@
+# Assignment materials from the interviewing company: kept local, not published.
+/docs/brief/
+
+# Personal tool settings
+/.claude/settings.local.json
+/.idea/
+.DS_Store
