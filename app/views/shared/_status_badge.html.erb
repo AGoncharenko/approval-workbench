@@ -1,0 +1,9 @@
+<%# locals: (status:) -%>
+<%# Text label plus color, never color alone. Full class strings so Tailwind's scanner finds them. %>
+<% classes = {
+  "draft" => "bg-draft-bg text-draft-fg ring-draft-fg/30",
+  "pending" => "bg-pending-bg text-pending-fg ring-pending-fg/30",
+  "approved" => "bg-approved-bg text-approved-fg ring-approved-fg/30",
+  "rejected" => "bg-rejected-bg text-rejected-fg ring-rejected-fg/30"
+}.fetch(status.to_s) %>
+<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset whitespace-nowrap <%= classes %>"><%= invoice_status_label(status) %></span>

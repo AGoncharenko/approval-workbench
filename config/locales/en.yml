@@ -28,4 +28,16 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  date:
+    formats:
+      long: "%B %-d, %Y"
+  invoices:
+    statuses:
+      draft: "Draft"
+      pending: "Pending approval"
+      approved: "Approved (not paid)"
+      rejected: "Rejected"
+    empty:
+      filtered: "No %{status} invoices to show."
+      requester: "You have no invoices yet."
+      reviewer: "No submitted invoices yet. Drafts stay private to the requester who wrote them; invoices appear here once submitted."

@@ -4,7 +4,7 @@
 
 | Assumption | Why it was necessary | Risk if wrong | How to validate in a real product |
 | --- | --- | --- | --- |
-|  |  |  |  |
+| Drafts are private to their author. Admins and approvers see only submitted invoices, plus the full audit trail. | The brief says users see invoices "available to their company and role" and that admins "inspect the audit history", but it never defines who sees drafts. Drafts are unsubmitted work in progress with no audit events, and nobody but the author can act on them. | Admins can't spot forgotten drafts nearing their due date, which is an oversight gap for AP. | Ask AP admins whether unsubmitted drafts matter to their oversight. If they do, add a read-only admin "Drafts" view rather than widening the general visibility rule. |
 
 ## Key decisions
 

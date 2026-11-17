@@ -1,0 +1,33 @@
+<% content_for :title, @invoice.vendor_name %>
+<p><%= link_to "Back to invoices", invoices_path, class: "text-sm font-semibold text-brand underline" %></p>
+
+<h1 class="mt-4 text-2xl font-bold"><%= @invoice.vendor_name %></h1>
+
+<dl class="mt-6 grid max-w-2xl grid-cols-[auto_1fr] gap-x-8 gap-y-3 rounded-lg border border-slate-200 bg-white p-6">
+  <dt class="font-medium text-slate-700">Amount</dt>
+  <dd><%= render "shared/money", amount: @invoice.total %></dd>
+  <dt class="font-medium text-slate-700">Currency</dt>
+  <dd><%= @invoice.currency %></dd>
+  <dt class="font-medium text-slate-700">Due date</dt>
+  <dd><%= date_tag(@invoice.due_date) %></dd>
+  <dt class="font-medium text-slate-700">Status</dt>
+  <dd><%= render "shared/status_badge", status: @invoice.status %></dd>
+  <dt class="font-medium text-slate-700">Version</dt>
+  <dd class="tabular-nums"><%= @invoice.version %></dd>
+  <dt class="font-medium text-slate-700">Submitted by</dt>
+  <dd><%= @invoice.submitted_by.name %></dd>
+</dl>
+
+<% if @invoice.terminal? %>
+  <p class="mt-4 max-w-2xl text-sm text-slate-700">This decision is final. Approval records a decision only; it does not pay the invoice.</p>
+<% end %>
+
+<section aria-labelledby="history-heading" class="mt-8 max-w-2xl">
+  <h2 id="history-heading" class="text-lg font-semibold">Approval history</h2>
+  <% if @invoice.approval_history.any? %>
+    <%# add-approval-commands backs approval_history with approval_events and adds this partial. %>
+    <ol class="mt-2 space-y-2"><%= render partial: "invoices/approval_event", collection: @invoice.approval_history %></ol>
+  <% else %>
+    <p class="mt-2 text-slate-700">No history yet.</p>
+  <% end %>
+</section>

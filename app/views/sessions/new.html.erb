@@ -1,23 +1,25 @@
-<h1>Sign in <small>(demo)</small></h1>
-<p>Demo environment: all data is synthetic.</p>
+<% content_for :title, "Sign in" %>
+<div class="mx-auto max-w-md">
+  <h1 class="text-2xl font-bold">Sign in <small class="text-base font-normal text-slate-600">(demo)</small></h1>
+  <p class="mt-1 mb-6 text-slate-700">Demo environment: all data is synthetic.</p>
 
-<%= tag.div(flash[:alert], style: "color:red", role: "alert") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green", role: "status") if flash[:notice] %>
+  <%= form_with url: session_path, class: "rounded-lg border border-slate-200 bg-white p-6 shadow-sm" do |form| %>
+    <%= render "shared/form_field", form:, attribute: :email_address, label: "Email address", input: :email_field,
+          required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %>
+    <%= render "shared/form_field", form:, attribute: :password, label: "Password", input: :password_field,
+          required: true, autocomplete: "current-password", maxlength: 72 %>
+    <%= render "shared/button", label: "Sign in", submits_with: "Signing in…" %>
+  <% end %>
 
-<%= form_with url: session_path do |form| %>
-  <%= form.label :email_address, "Email address" %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %><br>
-  <%= form.label :password %>
-  <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72 %><br>
-  <%= form.submit "Sign in" %>
-<% end %>
-
-<% unless Rails.env.production? %>
-  <h2>Demo accounts</h2>
-  <p>Every account uses the demo password from the README.</p>
-  <ul>
-    <% User.eager_load(:company).order("companies.name", :email_address).each do |user| %>
-      <li><%= user.email_address %> &mdash; <%= user.role %>, <%= user.company.name %></li>
-    <% end %>
-  </ul>
-<% end %>
+  <% if @demo_accounts %>
+    <section aria-labelledby="demo-accounts" class="mt-8">
+      <h2 id="demo-accounts" class="text-lg font-semibold">Demo accounts</h2>
+      <p class="text-sm text-slate-700">Every account uses the demo password from the README.</p>
+      <ul class="mt-2 space-y-1 text-sm">
+        <% @demo_accounts.each do |user| %>
+          <li><span class="font-mono"><%= user.email_address %></span> &mdash; <%= user.role %>, <%= user.company.name %></li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

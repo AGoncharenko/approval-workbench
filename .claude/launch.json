@@ -4,7 +4,7 @@
     {
       "name": "workbench",
       "runtimeExecutable": "zsh",
-      "runtimeArgs": ["-lc", "eval \"$(rbenv init - zsh)\" && bin/dev -p 3000"],
+      "runtimeArgs": ["-lc", "eval \"$(rbenv init - zsh)\" && PORT=3000 bin/dev"],
       "port": 3000
     }
   ]

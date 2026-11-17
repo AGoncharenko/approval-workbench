@@ -1,0 +1,11 @@
+<%# locals: (form:, attribute:, label:, input: :text_field, error: nil, **options) -%>
+<% error_id = form.field_id(attribute, :error) %>
+<div class="mb-4">
+  <%= form.label attribute, label, class: "block text-sm font-medium text-slate-900" %>
+  <%= form.public_send input, attribute, **options,
+        aria: { invalid: error.present?, describedby: (error_id if error.present?) },
+        class: "mt-1 block w-full rounded-md border px-3 py-2 text-slate-900 shadow-sm #{error.present? ? "border-rejected-fg" : "border-slate-400"}" %>
+  <% if error.present? %>
+    <p id="<%= error_id %>" class="mt-1 text-sm text-rejected-fg"><%= error %></p>
+  <% end %>
+</div>

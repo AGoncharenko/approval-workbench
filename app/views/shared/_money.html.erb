@@ -1,0 +1,4 @@
+<%# locals: (amount:) -%>
+<%# Takes a Money only (e.g. invoice.total); Money refuses Floats, so no float formatting can reach the page. %>
+<% raise ArgumentError, "shared/money expects a Money, got #{amount.class}" unless amount.is_a?(Money) %>
+<span class="inline-block text-right tabular-nums whitespace-nowrap"><%= amount %></span>

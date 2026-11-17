@@ -1,0 +1,9 @@
+<%# locals: (label:, variant: :primary, submits_with: "Working…", type: "submit", disabled: false, **attributes) -%>
+<% classes = {
+  primary: "bg-brand text-white hover:bg-brand-strong",
+  secondary: "bg-white text-slate-900 ring-1 ring-inset ring-slate-400 hover:bg-slate-50",
+  danger: "bg-rejected-fg text-white hover:bg-red-900"
+}.fetch(variant.to_sym) %>
+<%= tag.button label, type:, disabled:, **attributes.except(:data),
+      data: { turbo_submits_with: submits_with, **attributes.fetch(:data, {}) },
+      class: "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-60 #{classes}" %>

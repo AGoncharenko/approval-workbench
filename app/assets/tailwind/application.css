@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/* Design tokens. Status/notice pairs are checked for WCAG AA (>= 4.5:1) in spec/assets/theme_contrast_spec.rb. */
+@theme {
+  --color-brand: #1d4ed8;
+  --color-brand-strong: #1e3a8a;
+  --color-focus: #b45309;
+
+  --color-draft-bg: #f1f5f9;
+  --color-draft-fg: #334155;
+  --color-pending-bg: #fef3c7;
+  --color-pending-fg: #92400e;
+  --color-approved-bg: #dcfce7;
+  --color-approved-fg: #166534;
+  --color-rejected-bg: #fee2e2;
+  --color-rejected-fg: #991b1b;
+  --color-info-bg: #dbeafe;
+  --color-info-fg: #1e3a8a;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}

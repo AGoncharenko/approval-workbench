@@ -26,6 +26,20 @@ RSpec.describe "db/seeds.rb" do
     expect(User.pluck(:email_address)).to all(end_with(".example.com"))
   end
 
+  it "creates a stable set of DRAFT invoices in USD, EUR and JPY, authored by each company's requester" do
+    load_seeds
+    first = Invoice.order(:id).pluck(:id, :vendor_name, :total_minor_units, :currency, :due_date)
+    load_seeds
+
+    expect(Invoice.order(:id).pluck(:id, :vendor_name, :total_minor_units, :currency, :due_date)).to eq(first)
+    expect(Invoice.joins(:company).group("companies.name").count).to eq("Acme Industries" => 8, "Globex Trading" => 7)
+    expect(Invoice.distinct.pluck(:currency)).to contain_exactly("USD", "EUR", "JPY")
+    expect(Invoice.distinct.pluck(:status, :version)).to eq([ [ "draft", 1 ] ])
+    expect(Invoice.joins(:submitted_by).distinct.pluck("users.role")).to eq([ "requester" ])
+    expect(Invoice.joins(:submitted_by).where("users.company_id <> invoices.company_id")).to be_empty
+    expect(Invoice.minimum(:due_date)).to be > Date.current
+  end
+
   it "lets every seeded user sign in with the default demo password" do
     load_seeds
     User.find_each do |user|

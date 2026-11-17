@@ -1,0 +1,38 @@
+<% content_for :title, "Invoices" %>
+
+<h1 class="text-2xl font-bold">Invoices</h1>
+<p class="mt-1 text-slate-700">
+  <%= Current.user.requester? ? "Invoices you wrote, including your drafts." : "Submitted invoices for #{Current.company.name}." %>
+  Soonest due date first.
+</p>
+
+<%= form_with url: invoices_path, method: :get, class: "mt-6 mb-4 flex flex-wrap items-end gap-3" do |form| %>
+  <div>
+    <%= form.label :status, "Status", class: "block text-sm font-medium" %>
+    <%= form.select :status, invoice_status_options(Current.user), { include_blank: "All statuses", selected: @status },
+          class: "mt-1 rounded-md border border-slate-400 bg-white px-3 py-2" %>
+  </div>
+  <%= render "shared/button", label: "Filter", variant: :secondary, submits_with: "Filtering…" %>
+<% end %>
+
+<%= render layout: "shared/data_table", locals: {
+      caption: @status ? "Invoices: #{invoice_status_label(@status)}" : "Invoices",
+      columns: [ { label: "Vendor" }, { label: "Amount", numeric: true }, { label: "Due date" }, { label: "Status" } ],
+      rows: @invoices, empty_message: invoices_empty_message(status: @status, user: Current.user) } do |invoice| %>
+  <td class="px-4 py-3"><%= link_to invoice.vendor_name, invoice, class: "font-medium text-brand underline hover:text-brand-strong" %></td>
+  <td class="px-4 py-3 text-right"><%= render "shared/money", amount: invoice.total %></td>
+  <td class="px-4 py-3 whitespace-nowrap"><%= date_tag(invoice.due_date) %></td>
+  <td class="px-4 py-3"><%= render "shared/status_badge", status: invoice.status %></td>
+<% end %>
+
+<% if @page > 1 || @next_page %>
+  <nav aria-label="Pagination" class="mt-4 flex items-center gap-4 text-sm">
+    <% if @page > 1 %>
+      <%= link_to "Previous page", invoices_path(status: @status, page: @page - 1), class: "font-semibold text-brand underline" %>
+    <% end %>
+    <span>Page <%= @page %></span>
+    <% if @next_page %>
+      <%= link_to "Next page", invoices_path(status: @status, page: @next_page), class: "font-semibold text-brand underline" %>
+    <% end %>
+  </nav>
+<% end %>

@@ -1,0 +1,24 @@
+<%# locals: (caption:, columns:, rows:, empty_message:) -%>
+<%# columns: [{ label:, numeric: false }]. Pass a block; it is yielded each row and renders that row's <td>s. %>
+<% caption_id = "#{caption.parameterize}-caption" %>
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white" role="region" aria-labelledby="<%= caption_id %>" tabindex="0">
+  <table class="min-w-full divide-y divide-slate-200 text-sm">
+    <caption id="<%= caption_id %>" class="px-4 py-3 text-left font-semibold text-slate-900"><%= caption %></caption>
+    <thead class="bg-slate-50">
+      <tr>
+        <% columns.each do |column| %>
+          <th scope="col" class="px-4 py-2 font-semibold text-slate-700 <%= column[:numeric] ? "text-right" : "text-left" %>"><%= column[:label] %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      <% if rows.empty? %>
+        <tr><td colspan="<%= columns.size %>" class="px-4 py-8 text-center text-slate-600"><%= empty_message %></td></tr>
+      <% else %>
+        <% rows.each do |row| %>
+          <tr class="hover:bg-slate-50"><%= yield row %></tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -11,6 +11,8 @@ context: |
     - Money is integer minor units plus ISO-4217 currency; never Float.
     - Every state transition writes an audit event in the same DB transaction.
     - Stale (expected_version mismatch) or duplicate (idempotency key) commands never apply twice.
+  Conventions:
+    - UI strings go in config/locales/en.yml only when reused in more than one place, chosen in Ruby (helpers, controllers, services, flash), or domain labels and formats (statuses, roles, dates). One-off static copy stays inline in its template. Missing translations raise in development and test.
 
 rules:
   proposal:

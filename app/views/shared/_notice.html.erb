@@ -1,0 +1,13 @@
+<%# locals: (message: nil, variant: :info) -%>
+<%# The page's single live region: always rendered (announcements need an existing region), filled for flash and command outcomes. %>
+<% classes = {
+  success: "bg-approved-bg text-approved-fg border-approved-fg/40",
+  info: "bg-info-bg text-info-fg border-info-fg/40",
+  conflict: "bg-pending-bg text-pending-fg border-pending-fg/40",
+  error: "bg-rejected-bg text-rejected-fg border-rejected-fg/40"
+}.fetch(variant.to_sym) %>
+<div id="notice" role="status" aria-live="polite" aria-atomic="true">
+  <% if message.present? %>
+    <p class="mb-6 rounded-md border px-4 py-3 text-sm font-medium <%= classes %>"><%= message %></p>
+  <% end %>
+</div>
