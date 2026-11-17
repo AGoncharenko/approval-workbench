@@ -1,0 +1,15 @@
+<%# locals: (approval_event:) -%>
+<li class="rounded-md border border-slate-200 bg-white px-4 py-3">
+  <p>
+    <strong><%= t("approvals.actions.#{approval_event.action}") %></strong>
+    by <%= approval_event.actor.name %> (<%= approval_event.actor_role %>) · <%= date_tag(approval_event.created_at) %>
+  </p>
+  <p class="text-sm text-slate-700">
+    <%= invoice_status_label(approval_event.from_status.downcase) %>
+    <span aria-hidden="true">→</span><span class="sr-only"> to </span>
+    <%= invoice_status_label(approval_event.to_status.downcase) %>
+  </p>
+  <% if approval_event.reason %>
+    <p class="mt-1 text-sm">Reason: <%= approval_event.reason %></p>
+  <% end %>
+</li>

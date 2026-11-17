@@ -22,10 +22,11 @@
   <p class="mt-4 max-w-2xl text-sm text-slate-700">This decision is final. Approval records a decision only; it does not pay the invoice.</p>
 <% end %>
 
+<%= render "invoices/decision_form", invoice: @invoice, reason: @reason, reason_error: @reason_error %>
+
 <section aria-labelledby="history-heading" class="mt-8 max-w-2xl">
   <h2 id="history-heading" class="text-lg font-semibold">Approval history</h2>
   <% if @invoice.approval_history.any? %>
-    <%# add-approval-commands backs approval_history with approval_events and adds this partial. %>
     <ol class="mt-2 space-y-2"><%= render partial: "invoices/approval_event", collection: @invoice.approval_history %></ol>
   <% else %>
     <p class="mt-2 text-slate-700">No history yet.</p>

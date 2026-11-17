@@ -4,6 +4,7 @@ class Invoice < ApplicationRecord
 
   belongs_to :company
   belongs_to :submitted_by, class_name: "User"
+  has_many :approval_events, dependent: :restrict_with_exception
 
   enum :status, STATUSES.index_by(&:downcase), validate: true
 
@@ -19,6 +20,5 @@ class Invoice < ApplicationRecord
 
   def terminal? = approved? || rejected?
 
-  # Seam for add-approval-commands: it replaces this with the invoice's approval_events, oldest first.
-  def approval_history = []
+  def approval_history = approval_events.includes(:actor).order(:created_at, :id)
 end

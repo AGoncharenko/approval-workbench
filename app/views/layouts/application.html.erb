@@ -40,7 +40,7 @@
     </header>
 
     <main id="main" tabindex="-1" class="mx-auto max-w-6xl px-4 py-8 focus:outline-none">
-      <%= render "shared/notice", message: flash[:alert] || flash[:notice], variant: flash[:alert] ? :error : :success %>
+      <%= render "shared/notice", **flash_notice %>
       <%= yield %>
     </main>
   </body>

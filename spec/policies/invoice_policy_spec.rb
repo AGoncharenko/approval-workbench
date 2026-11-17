@@ -41,3 +41,45 @@ RSpec.describe InvoicePolicy::Scope do
     expect(visible_to(foreign_author)).to contain_exactly(foreign_pending)
   end
 end
+
+RSpec.describe InvoicePolicy do
+  let(:company) { create(:company) }
+  let(:author) { create(:user, company:) }
+
+  describe "#transition? for approve and reject" do
+    %w[approve reject].each do |action|
+      Invoice.statuses.each_key do |status|
+        { "requester" => false, "approver" => true, "admin" => false }.each do |role, allowed_role|
+          expected = allowed_role && status == "pending"
+          it "is #{expected} for a non-author #{role} on a #{status} invoice (#{action})" do
+            invoice = create(:invoice, company:, submitted_by: author, status: status.upcase)
+            actor = create(:user, company:, role:)
+            expect(described_class.new(actor, invoice).transition?(action)).to be(expected)
+          end
+        end
+      end
+
+      it "refuses the author even after they become an approver (#{action})" do
+        invoice = create(:invoice, :pending, company:, submitted_by: author)
+        author.update!(role: "approver")
+        policy = described_class.new(author, invoice)
+        expect([ policy.permitted?(action), policy.transition?(action) ]).to eq([ false, false ])
+      end
+
+      it "refuses an approver of another company (#{action})" do
+        invoice = create(:invoice, :pending, company:, submitted_by: author)
+        expect(described_class.new(create(:user, :approver), invoice).transition?(action)).to be(false)
+      end
+    end
+
+    it "keeps permission apart from status, so a decided invoice is a conflict, not a 403" do
+      policy = described_class.new(create(:user, :approver, company:), create(:invoice, :approved, company:, submitted_by: author))
+      expect([ policy.permitted?("approve"), policy.transition?("approve") ]).to eq([ true, false ])
+    end
+
+    it "refuses unknown actions" do
+      policy = described_class.new(create(:user, :approver, company:), create(:invoice, :pending, company:, submitted_by: author))
+      expect([ policy.permitted?("pay"), policy.transition?("submit") ]).to eq([ false, false ])
+    end
+  end
+end
