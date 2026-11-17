@@ -12,7 +12,13 @@ An accounts-payable invoice approval workbench. Requesters submit invoices, appr
 
 [![Two approvers decide the same invoice: the stale rejection is refused with a conflict](docs/screencast/approval_conflict.png)](docs/screencast/approval_conflict.mp4)
 
-[Watch the screencast](docs/screencast/approval_conflict.mp4). Blair (left) and Alex (right) open the same pending invoice. Alex approves, Blair's page refreshes by itself and keeps the typed reason, and Blair's stale **Reject** is refused with *"Not applied: this invoice changed since you opened it…"*. The admin then sees a single approval in the audit history. It was recorded against the Docker Compose app with `.claude/skills/screencast/examples/approval_conflict.mjs` (see `.claude/skills/screencast/SKILL.md` to record another workflow).
+
+
+https://github.com/user-attachments/assets/2b6c4c9a-791d-4452-8393-f9ed0865d527
+
+
+
+Blair (left) and Alex (right) open the same pending invoice. Alex approves, Blair's page refreshes by itself and keeps the typed reason, and Blair's stale **Reject** is refused with *"Not applied: this invoice changed since you opened it…"*. The admin then sees a single approval in the audit history. It was recorded against the Docker Compose app with `.claude/skills/screencast/examples/approval_conflict.mjs` (see `.claude/skills/screencast/SKILL.md` to record another workflow).
 
 ### Five-minute demo path
 
