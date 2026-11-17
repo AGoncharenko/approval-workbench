@@ -133,8 +133,51 @@ RSpec.describe TransitionInvoice do
     expect(run(key: "").errors).to eq(idempotency_key: :blank)
     expect(run(key: "k" * 256).errors).to eq(idempotency_key: :too_long)
     expect(run(expected_version: "abc").errors).to eq(expected_version: :blank)
-    expect(run(action: "submit").errors).to eq(action: :inclusion)
+    expect(run(action: "pay").errors).to eq(action: :inclusion)
     expect_unchanged
+  end
+
+  describe "submit" do
+    let(:draft) { create(:invoice, company:, submitted_by: author) }
+
+    def submit(actor: author, key: SecureRandom.uuid, expected_version: 1)
+      run(actor:, uuid: draft.uuid, action: "submit", expected_version:, key:)
+    end
+
+    it "moves the author's draft to PENDING, bumps the version and records the requester" do
+      result = submit
+      expect(result.outcome).to eq(:applied)
+      expect(draft.reload).to have_attributes(status: "pending", version: 2)
+      expect(result.event).to have_attributes(invoice: draft, actor: author, actor_role: "requester", action: "submit",
+        from_status: "DRAFT", to_status: "PENDING", reason: nil)
+    end
+
+    it "treats another requester's draft as not found, and an approver's attempt too (drafts are author-only)" do
+      expect(submit(actor: create(:user, company:)).outcome).to eq(:not_found)
+      expect(submit(actor: approver).outcome).to eq(:not_found)
+      expect_unchanged(draft)
+    end
+
+    it "replays a duplicate key without a second event" do
+      first = submit(key: "s-1")
+      second = submit(key: "s-1")
+      expect(second.outcome).to eq(:replayed)
+      expect(second.event).to eq(first.event)
+      expect(draft.reload.version).to eq(2)
+      expect(ApprovalEvent.count).to eq(1)
+    end
+
+    it "conflicts on a stale version or an already submitted invoice" do
+      expect(submit(expected_version: 2).outcome).to eq(:conflict)
+      submit
+      expect(submit.outcome).to eq(:conflict)
+      expect(ApprovalEvent.count).to eq(1)
+    end
+
+    it "forbids submit by anyone but a requester on an invoice they can see" do
+      expect(run(action: "submit", expected_version: 7).outcome).to eq(:forbidden) # approver on a pending invoice
+      expect_unchanged
+    end
   end
 
   describe "atomicity", :concurrency do

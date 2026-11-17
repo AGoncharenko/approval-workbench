@@ -82,4 +82,43 @@ RSpec.describe InvoicePolicy do
       expect([ policy.permitted?("pay"), policy.transition?("submit") ]).to eq([ false, false ])
     end
   end
+
+  describe "drafts: #create?, #update?, #destroy?" do
+    let(:draft) { create(:invoice, company:, submitted_by: author) }
+
+    { "requester" => true, "approver" => false, "admin" => false }.each do |role, allowed|
+      it "lets a #{role} create: #{allowed}" do
+        expect(described_class.new(create(:user, company:, role:), Invoice.new).create?).to be(allowed)
+      end
+
+      it "lets a non-author #{role} update or destroy someone's draft: false" do
+        policy = described_class.new(create(:user, company:, role:), draft)
+        expect([ policy.update?, policy.destroy? ]).to eq([ false, false ])
+      end
+    end
+
+    it "lets the author update and destroy only while the invoice is a draft" do
+      expect(described_class.new(author, draft)).to have_attributes(update?: true, destroy?: true)
+      %i[pending approved rejected].each do |status|
+        policy = described_class.new(author, create(:invoice, status, company:, submitted_by: author))
+        expect([ policy.update?, policy.destroy? ]).to eq([ false, false ])
+      end
+    end
+
+    it "refuses the author once they are no longer a requester" do
+      draft
+      author.update!(role: "approver")
+      expect(described_class.new(author, draft).update?).to be(false)
+    end
+  end
+
+  describe "#transition? for submit" do
+    it "allows only the requester author on a draft" do
+      draft = create(:invoice, company:, submitted_by: author)
+      expect(described_class.new(author, draft).transition?("submit")).to be(true)
+      expect(described_class.new(create(:user, company:), draft).transition?("submit")).to be(false)
+      expect(described_class.new(create(:user, :approver, company:), draft).transition?("submit")).to be(false)
+      expect(described_class.new(author, create(:invoice, :pending, company:, submitted_by: author)).transition?("submit")).to be(false)
+    end
+  end
 end

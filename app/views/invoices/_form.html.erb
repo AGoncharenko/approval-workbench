@@ -1,0 +1,16 @@
+<%# locals: (invoice:, expected_version: nil) -%>
+<%= form_with model: invoice, class: "mt-6 max-w-xl rounded-lg border border-slate-200 bg-white p-6" do |form| %>
+  <% if invoice.persisted? %>
+    <%= hidden_field_tag :expected_version, expected_version || invoice.version, id: nil %>
+  <% end %>
+  <% error = ->(attribute) { invoice.errors.full_messages_for(attribute).first } %>
+  <%= render "shared/form_field", form:, attribute: :vendor_name, label: "Vendor", error: error.(:vendor_name),
+        required: true, maxlength: 200, autocomplete: "off" %>
+  <%= render "shared/form_field", form:, attribute: :amount, label: "Amount", error: error.(:amount),
+        required: true, inputmode: "decimal", autocomplete: "off", placeholder: "1,234.56" %>
+  <%= render "shared/form_field", form:, attribute: :currency, label: "Currency", input: :select, error: error.(:currency),
+        choices: Money::CURRENCIES, required: true %>
+  <%= render "shared/form_field", form:, attribute: :due_date, label: "Due date", input: :date_field, error: error.(:due_date),
+        required: true %>
+  <%= render "shared/button", label: "Save draft", submits_with: "Saving…" %>
+<% end %>

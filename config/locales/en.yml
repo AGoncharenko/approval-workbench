@@ -44,6 +44,17 @@ en:
       filtered: "No %{status} invoices to show."
       requester: "You have no invoices yet."
       reviewer: "No submitted invoices yet. Drafts stay private to the requester who wrote them; invoices appear here once submitted."
+    drafts:
+      saved: "Draft saved. Only you can see it until you submit it for approval."
+      discarded: "Draft for %{vendor} discarded."
+      conflict: "Not saved: this draft changed since you opened it (for example in another tab). These are its current values at version %{version}; nothing was overwritten."
+  activerecord:
+    errors:
+      models:
+        invoice:
+          attributes:
+            amount:
+              invalid_amount: "must be a number of 0 or more with at most %{decimals} decimal places for %{currency}, up to %{max}"
   approvals:
     actions:
       submit: "Submitted"
@@ -53,12 +64,18 @@ en:
       applied:
         approve: "Invoice approved. This records the decision only; it does not pay the invoice."
         reject: "Invoice rejected."
+        submit: "Invoice submitted for approval. Approvers in your company can now see it."
       replayed: "Already recorded: this decision was saved at %{time}. Nothing was applied twice."
       conflict: "Not applied: this invoice changed since you opened it. It is now %{status} (version %{version}), last changed by %{actor} at %{time}."
       conflict_without_event: "Not applied: this invoice changed since you opened it. It is now %{status} (version %{version})."
       forbidden: "Not allowed: you can't make this decision on this invoice. Nothing was changed."
       invalid: "Not applied: check the form and try again."
       reused_key: "Not applied: this form was already used for a different decision. Reload the invoice to see its current state."
+      # Submit-specific wording; any key missing here falls back to the shared one above.
+      submit:
+        replayed: "Already recorded: this invoice was submitted at %{time}. Nothing was applied twice."
+        forbidden: "Not allowed: only the requester who wrote this draft can submit it. Nothing was changed."
+        reused_key: "Not applied: this form was already used for a different action. Reload the invoice to see its current state."
     errors:
       reason:
         blank: "Enter a reason for the rejection."

@@ -1,0 +1,5 @@
+<% content_for :title, "New invoice" %>
+<p><%= link_to "Back to invoices", invoices_path, class: "text-sm font-semibold text-brand underline" %></p>
+<h1 class="mt-4 text-2xl font-bold">New invoice</h1>
+<p class="mt-1 text-slate-700">Saved as a draft that only you can see. Submit it for approval from its page when it's ready.</p>
+<%= render "form", invoice: @invoice %>

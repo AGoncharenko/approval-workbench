@@ -1,6 +1,11 @@
 <% content_for :title, "Invoices" %>
 
-<h1 class="text-2xl font-bold">Invoices</h1>
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h1 class="text-2xl font-bold">Invoices</h1>
+  <% if InvoicePolicy.new(Current.user, Invoice.new).create? %>
+    <%= link_to "New invoice", new_invoice_path, class: "rounded-md bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-strong" %>
+  <% end %>
+</div>
 <p class="mt-1 text-slate-700">
   <%= Current.user.requester? ? "Invoices you wrote, including your drafts." : "Submitted invoices for #{Current.company.name}." %>
   Soonest due date first.

@@ -18,6 +18,15 @@
   <dd><%= @invoice.submitted_by.name %></dd>
 </dl>
 
+<% if InvoicePolicy.new(Current.user, @invoice).update? %>
+  <div class="mt-4 flex max-w-2xl flex-wrap items-center gap-4">
+    <%= link_to "Edit draft", edit_invoice_path(@invoice), class: "font-semibold text-brand underline hover:text-brand-strong" %>
+    <%= form_with url: invoice_path(@invoice), method: :delete, data: { turbo_confirm: "Discard this draft? It is deleted and can't be recovered." } do %>
+      <%= render "shared/button", label: "Discard draft", variant: :secondary, submits_with: "Discarding…" %>
+    <% end %>
+  </div>
+<% end %>
+
 <% if @invoice.terminal? %>
   <p class="mt-4 max-w-2xl text-sm text-slate-700">This decision is final. Approval records a decision only; it does not pay the invoice.</p>
 <% end %>

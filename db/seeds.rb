@@ -25,7 +25,7 @@ password = ENV.fetch("DEMO_PASSWORD", "demo-password-2026")
   end
 end
 
-# DRAFT invoices only: later statuses are reached through real commands so every status has audit history.
+# Created as DRAFTs; later statuses are reached below through the real commands, so every status has audit history.
 # Amounts are integer minor units; due dates are offsets from the load date so the demo never looks stale.
 {
   "requester@acme.example.com" => [
@@ -53,6 +53,40 @@ end
   invoices.each do |vendor_name, total_minor_units, currency, due_in_days|
     Invoice.find_or_create_by!(company: author.company, vendor_name:) do |invoice|
       invoice.assign_attributes(submitted_by: author, total_minor_units:, currency:, due_date: Date.current + due_in_days)
+    end
+  end
+end
+
+# A fixed subset moves through TransitionInvoice as the seeded users: [vendor, decision, decider mailbox, reason].
+# Keys are derived from natural keys and each step's expected version is fixed (submit at 1, decision at 2), so a
+# re-run sends the identical command and is replayed: no new events, no version changes. The rest stay DRAFT.
+{
+  "acme" => [
+    [ "Northwind Office Supply" ],
+    [ "Blue Harbor Logistics", "approve", "approver1" ],
+    [ "Cedar Analytics", "reject", "approver2", "Duplicate of an invoice already paid in October." ],
+    [ "Kumo Translation KK" ]
+  ],
+  "globex" => [
+    [ "Orion Freight" ],
+    [ "Atlas Legal LLP", "approve", "approver2" ],
+    [ "Hikari Components", "reject", "approver1", "Quantity does not match the purchase order." ],
+    [ "Meridian Catering" ]
+  ]
+}.each do |domain, steps|
+  requester = User.find_by!(email_address: "requester@#{domain}.example.com")
+
+  steps.each do |vendor_name, decision, decider, reason|
+    invoice = requester.company.invoices.find_by!(vendor_name:)
+    commands = [ [ requester, "submit", 1, nil ] ]
+    commands << [ User.find_by!(email_address: "#{decider}@#{domain}.example.com"), decision, 2, reason ] if decision
+
+    commands.each do |actor, action, expected_version, reason|
+      result = TransitionInvoice.call(actor:, invoice_uuid: invoice.uuid, action:, expected_version:, reason:,
+        idempotency_key: "seed:#{domain}:#{vendor_name}:#{action}")
+      next if result.outcome.in?(%i[applied replayed])
+
+      raise "Seeding #{action} of #{vendor_name} (#{domain}) failed: #{result.outcome} #{result.errors}"
     end
   end
 end

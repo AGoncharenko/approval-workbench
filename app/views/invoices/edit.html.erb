@@ -1,0 +1,5 @@
+<% content_for :title, "Edit #{@invoice.vendor_name}" %>
+<p><%= link_to "Back to the invoice", invoice_path(@invoice), class: "text-sm font-semibold text-brand underline" %></p>
+<h1 class="mt-4 text-2xl font-bold">Edit draft</h1>
+<p class="mt-1 text-slate-700">You are editing version <%= @expected_version || @invoice.version %>. If it changes in another tab first, nothing is overwritten and you'll see the current values.</p>
+<%= render "form", invoice: @invoice, expected_version: @expected_version %>

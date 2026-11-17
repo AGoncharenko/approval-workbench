@@ -1,8 +1,8 @@
 class InvoicePolicy
-  # The one rule table for status transitions. add-invoice-submission adds:
-  #   "submit" => { from: "draft", to: "pending", role: "requester", author: true }
+  # The one rule table for status transitions.
   # author: true means only the author may act; false means the author may not (segregation of duties).
   TRANSITIONS = {
+    "submit" => { from: "draft", to: "pending", role: "requester", author: true },
     "approve" => { from: "pending", to: "approved", role: "approver", author: false },
     "reject" => { from: "pending", to: "rejected", role: "approver", author: false }
   }.freeze
@@ -17,6 +17,15 @@ class InvoicePolicy
     @user = user
     @invoice = invoice
   end
+
+  # Only requesters write invoices (a "no" here is a 403).
+  def create? = @user.requester?
+
+  # Drafts are pre-workflow work in progress: only their author may change or discard them, and only while DRAFT.
+  def update?
+    create? && @invoice.company_id == @user.company_id && @invoice.submitted_by_id == @user.id && @invoice.draft?
+  end
+  alias destroy? update?
 
   # Who may take the action at all, whatever the invoice's status (a "no" here is a 403).
   def permitted?(action)
