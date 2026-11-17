@@ -46,6 +46,12 @@ RSpec.describe "Sessions" do
     expect(response).to redirect_to(new_session_path)
   end
 
+  it "disconnects the user's realtime sockets on sign-out" do
+    sign_in_as(user)
+
+    expect { delete session_path }.to have_broadcasted_to("action_cable/#{user.to_gid_param}").with(type: "disconnect", reconnect: true)
+  end
+
   it "treats a cookie replayed after sign-out as unauthenticated" do
     sign_in_as(user)
     stolen = cookies[:session_id]

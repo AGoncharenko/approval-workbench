@@ -48,5 +48,7 @@ module Authentication
     def terminate_session
       Current.session.destroy
       cookies.delete(:session_id)
+      # Closes the user's open realtime sockets; another still-valid session reconnects on its own.
+      ActionCable.server.remote_connections.where(current_user: Current.user).disconnect
     end
 end

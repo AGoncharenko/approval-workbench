@@ -182,4 +182,29 @@ RSpec.describe "Invoices" do
       end
     end
   end
+
+  describe "live refresh" do
+    # The tag carries only a signed name; the verifier is what proves which stream a client may subscribe to.
+    def stream_names = Nokogiri::HTML(response.body).css("turbo-cable-stream-source[channel='Turbo::StreamsChannel']")
+      .map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+
+    def meta(name) = Nokogiri::HTML(response.body).at("head meta[name='#{name}']")&.[]("content")
+
+    it "subscribes the list and detail pages to the viewer's company stream only, with morph refreshes" do
+      other = create(:company)
+      sign_in_as(approver)
+
+      [ invoices_path, invoice_path(create(:invoice, :pending, company:, submitted_by: requester)) ].each do |path|
+        get path
+        expect(stream_names).to eq([ "#{company.to_gid_param}:invoices" ])
+        expect(stream_names.join).not_to include(other.to_gid_param)
+        expect(meta("turbo-refresh-method")).to eq("morph")
+        expect(meta("turbo-refresh-scroll")).to eq("preserve")
+      end
+    end
+
+    it "refuses a stream name the server did not sign" do
+      expect(Turbo::StreamsChannel.verified_stream_name("#{create(:company).to_gid_param}:invoices")).to be_nil
+    end
+  end
 end

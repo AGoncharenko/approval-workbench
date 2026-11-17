@@ -1,4 +1,6 @@
 <% content_for :title, @invoice.vendor_name %>
+<%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+<%= turbo_stream_from Current.company, :invoices %>
 <p><%= link_to "Back to invoices", invoices_path, class: "text-sm font-semibold text-brand underline" %></p>
 
 <h1 class="mt-4 text-2xl font-bold"><%= @invoice.vendor_name %></h1>

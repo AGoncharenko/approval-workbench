@@ -16,6 +16,10 @@ class Invoice < ApplicationRecord
   validate :amount_parsed, if: -> { @amount && total_minor_units.nil? }
   validate { errors.add(:submitted_by, "must belong to the same company") if submitted_by && submitted_by.company_id != company_id }
 
+  # A content-free "refresh" to the company's open pages, which re-read under each viewer's own session.
+  # Synchronous (no job queue), and reported rather than raised: the change is committed, realtime is only a hint.
+  after_commit { Rails.error.handle { broadcast_refresh_to company, :invoices } }
+
   def to_param = uuid
 
   # The form's amount: a decimal string, parsed to total_minor_units by the currency's exponent on validation.

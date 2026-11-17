@@ -18,7 +18,10 @@ Rails 8 ships Turbo 8 page refreshes with morphing, and Solid Cable (Action Cabl
   - Alternative: `broadcast_replace_to` with rendered partials. Rejected: a partial rendered once for all subscribers can't respect per-viewer visibility, so it risks leaking data across roles.
 - **`<meta name="turbo-refresh-method" content="morph">` and `turbo-refresh-scroll="preserve"`.** The decision form is split so that:
   - the reason `<textarea>` is `data-turbo-permanent`, and keeps what the user typed;
-  - the hidden `expected_version` and idempotency key are also inside the permanent element, so they keep the version the user actually reviewed.
+  - the hidden `expected_version` and idempotency key are also inside the permanent element, so they keep the version the user actually reviewed;
+  - the version number shown in "You are deciding on version N" is permanent too, so the text always matches what the buttons act on;
+  - when the user submits, the version, key and shown version stop being permanent until the answer renders, so a 409 answer brings the current version and a fresh key (otherwise every retry would conflict until a hard reload). If no answer arrives, they become permanent again so Retry replays the same key;
+  - a refresh that would remove the whole decision section (the invoice was decided elsewhere) keeps it while a reason is typed, so the text isn't lost; submitting then gives the honest 409.
 
   This is deliberate: if they act, the version check makes the result honest. The refreshed status and history above the form show them that it changed.
 - **Stream names are signed** (Turbo's `signed_stream_name`), derived from the company GlobalID. They can't be guessed, and a client can only subscribe to a stream name the server rendered for them.

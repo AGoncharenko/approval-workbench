@@ -3,21 +3,26 @@
 <% policy = InvoicePolicy.new(Current.user, invoice) %>
 <% submitting = policy.transition?("submit") %>
 <% if submitting || policy.transition?("approve") || policy.transition?("reject") %>
-  <section aria-labelledby="decision-heading" class="mt-8 max-w-2xl rounded-lg border border-slate-200 bg-white p-6"
+  <section id="decision" aria-labelledby="decision-heading" class="mt-8 max-w-2xl rounded-lg border border-slate-200 bg-white p-6"
     data-controller="decision-form"
-    data-action="turbo:submit-start->decision-form#start turbo:submit-end->decision-form#end turbo:fetch-request-error->decision-form#end">
+    data-action="turbo:submit-start->decision-form#start turbo:submit-end->decision-form#end turbo:fetch-request-error->decision-form#end turbo:before-morph-element->decision-form#beforeMorph turbo:render@document->decision-form#rendered">
     <h2 id="decision-heading" class="text-lg font-semibold"><%= submitting ? "Submit for approval" : "Decision" %></h2>
-    <p class="mt-1 text-sm text-slate-700">You are <%= submitting ? "submitting" : "deciding on" %> version <%= invoice.version %>. If someone else changes it first, nothing is applied and you'll see what changed.</p>
+    <p class="mt-1 text-sm text-slate-700">You are <%= submitting ? "submitting" : "deciding on" %> version <%= tag.span invoice.version, id: "decision_version_#{invoice.uuid}", data: { turbo_permanent: true } %>. If someone else changes it first, nothing is applied and you'll see what changed.</p>
     <% if submitting %>
       <p class="mt-1 text-sm text-slate-700">Once submitted, approvers in your company can see it and it can no longer be edited or discarded.</p>
     <% end %>
 
-    <%# Each render gets a fresh idempotency key; resubmitting this same form reuses it, so a retry can't apply twice. %>
+    <%# Each render gets a fresh idempotency key; resubmitting this same form reuses it, so a retry can't apply twice.
+        The version and key (and the typed reason) are data-turbo-permanent, so a live refresh keeps what the user
+        reviewed and typed; if that version is stale, the version check reports the conflict. Ids carry the UUID so
+        nothing carries over to another invoice's page. %>
     <% if submitting %>
       <%= form_with url: invoice_transitions_path(invoice), scope: :transition, class: "mt-4" do |form| %>
         <%= form.hidden_field :action, value: "submit", id: nil %>
-        <%= form.hidden_field :expected_version, value: invoice.version, id: nil %>
-        <%= form.hidden_field :idempotency_key, value: SecureRandom.uuid, id: nil %>
+        <%= tag.div id: "submit_fields_#{invoice.uuid}", data: { turbo_permanent: true } do %>
+          <%= form.hidden_field :expected_version, value: invoice.version, id: nil %>
+          <%= form.hidden_field :idempotency_key, value: SecureRandom.uuid, id: nil %>
+        <% end %>
         <%= render "shared/button", label: "Submit for approval", submits_with: "Submitting…" %>
       <% end %>
     <% end %>
@@ -25,19 +30,24 @@
     <% if policy.transition?("approve") %>
       <%= form_with url: invoice_transitions_path(invoice), scope: :transition, class: "mt-4" do |form| %>
         <%= form.hidden_field :action, value: "approve", id: nil %>
-        <%= form.hidden_field :expected_version, value: invoice.version, id: nil %>
-        <%= form.hidden_field :idempotency_key, value: SecureRandom.uuid, id: nil %>
+        <%= tag.div id: "approve_fields_#{invoice.uuid}", data: { turbo_permanent: true } do %>
+          <%= form.hidden_field :expected_version, value: invoice.version, id: nil %>
+          <%= form.hidden_field :idempotency_key, value: SecureRandom.uuid, id: nil %>
+        <% end %>
         <%= render "shared/button", label: "Approve", submits_with: "Approving…" %>
       <% end %>
     <% end %>
 
     <% if policy.transition?("reject") %>
-      <%= form_with url: invoice_transitions_path(invoice), scope: :transition, class: "mt-6 border-t border-slate-200 pt-4" do |form| %>
+      <%= form_with url: invoice_transitions_path(invoice), scope: :transition, namespace: "invoice_#{invoice.uuid}", class: "mt-6 border-t border-slate-200 pt-4" do |form| %>
         <%= form.hidden_field :action, value: "reject", id: nil %>
-        <%= form.hidden_field :expected_version, value: invoice.version, id: nil %>
-        <%= form.hidden_field :idempotency_key, value: SecureRandom.uuid, id: nil %>
+        <%= tag.div id: "reject_fields_#{invoice.uuid}", data: { turbo_permanent: true } do %>
+          <%= form.hidden_field :expected_version, value: invoice.version, id: nil %>
+          <%= form.hidden_field :idempotency_key, value: SecureRandom.uuid, id: nil %>
+        <% end %>
         <%= render "shared/form_field", form:, attribute: :reason, label: "Reason for rejection (required)", input: :text_area,
-              error: reason_error, value: reason, required: true, maxlength: TransitionInvoice::REASON_MAX, rows: 3 %>
+              error: reason_error, value: reason, required: true, maxlength: TransitionInvoice::REASON_MAX, rows: 3,
+              data: { turbo_permanent: true } %>
         <%= render "shared/button", label: "Reject", variant: :danger, submits_with: "Rejecting…" %>
       <% end %>
     <% end %>

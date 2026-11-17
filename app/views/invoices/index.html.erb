@@ -1,4 +1,6 @@
 <% content_for :title, "Invoices" %>
+<%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+<%= turbo_stream_from Current.company, :invoices %>
 
 <div class="flex flex-wrap items-center justify-between gap-4">
   <h1 class="text-2xl font-bold">Invoices</h1>
