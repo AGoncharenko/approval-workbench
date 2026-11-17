@@ -5,6 +5,7 @@
 | Assumption | Why it was necessary | Risk if wrong | How to validate in a real product |
 | --- | --- | --- | --- |
 | Drafts are private to their author. Admins and approvers see only submitted invoices, plus the full audit trail. | The brief says users see invoices "available to their company and role" and that admins "inspect the audit history", but it never defines who sees drafts. Drafts are unsubmitted work in progress with no audit events, and nobody but the author can act on them. | Admins can't spot forgotten drafts nearing their due date, which is an oversight gap for AP. | Ask AP admins whether unsubmitted drafts matter to their oversight. If they do, add a read-only admin "Drafts" view rather than widening the general visibility rule. |
+| An invoice total is between 0 and 99,999,999,999,999 minor units (USD 999,999,999,999.99; the cap is in minor units, so it is ¥99.9 trillion for JPY and BHD 99.9 billion). Negative totals (credit notes) are out of scope. | The brief asks for exact money but sets no range. Without a cap, a typo or a forged value could store an absurd amount, and integers past 2^53 lose precision in any JavaScript or JSON consumer. This cap is far above any real AP invoice, fits easily in `bigint`, and stays below 2^53. One limit is enforced in three places: `Money::MAX_MINOR_UNITS`, the form parser and a DB CHECK. | A legitimate invoice is refused (very unlikely at this size), or credit notes, which are common in AP, cannot be entered. | Check the largest real invoice and the credit-note volume with AP. If credit notes are needed, model them as their own document type rather than allowing negative totals. A per-currency cap would only matter if a single cap proved too loose or too tight in practice. |
 
 ## Key decisions
 
@@ -41,6 +42,14 @@ Capture only the few choices that materially shaped the submission. Short bullet
 - Chosen approach: (b), plus a Docker Compose fallback. A `render.yaml` Blueprint defines a free web service and a free Postgres 18 database. The free tier has no shell, pre-deploy or workers, so migrations and idempotent seeds run in the entrypoint at boot, Solid Queue runs inside Puma, and Solid Cache, Queue and Cable share the single database. Kamal was removed (`--skip-kamal`) so there is one deploy path.
 - Tradeoffs: The instance sleeps after 15 minutes idle (about 1 minute to wake). The free database expires after 30 days plus a 14-day grace and has no backups, so it holds synthetic data only and the Blueprint recreates it. A single 512 MB instance.
 - Evidence or verification: `/up` returns 200 on the preview after a fresh Blueprint deploy. Redeploys keep data without duplicating seeds. Compose boots the same image locally.
+
+### Decision: Append-only audit enforced in the database, with `db/structure.sql`
+
+- Context: Audit events must never change or disappear. Model guards such as `readonly?` are bypassed by `update_all`, `delete_all`, raw SQL and the console. Admins also need one history across invoice decisions and role changes.
+- Options considered: (a) model guards only; (b) PostgreSQL triggers that refuse UPDATE and DELETE on both event tables, plus an `audit_entries` view (UNION ALL) for the history page; with (b), either keep `schema.rb` and add the `scenic` and `fx` gems, or switch the schema dump to `structure.sql`.
+- Chosen approach: (b) with `structure.sql`. `schema.rb` can't represent functions, triggers or views. Rails builds test, CI and fresh production databases (`db:prepare` on Render's empty database) by loading the schema file, not by replaying migrations, so with `schema.rb` those databases would silently lack the protection. The production cache, queue and cable databases keep `schema_format: ruby` for Rails' own Solid schema files.
+- Tradeoffs: `structure.sql` diffs are noisier. Dumping needs `pg_dump` and loading needs `psql` (the Docker image installs `postgresql-client`). The PG 18 dump uses settings that older servers reject, so every environment must run PG 18. TRUNCATE and the table owner can still bypass the triggers; real tamper-proofing needs a separate DB role without those rights.
+- Evidence or verification: `spec/db/audit_append_only_spec.rb` shows `update_all`, `delete_all` and raw SQL refused on both tables with rows unchanged. Rolling back and re-running the migrations regenerates a byte-identical `structure.sql`.
 
 ## Time-box decisions
 

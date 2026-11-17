@@ -1,0 +1,60 @@
+<% content_for :title, "Audit history" %>
+<h1 class="text-2xl font-bold">Audit history</h1>
+<p class="mt-1 text-slate-700">Every invoice decision and role change at <%= Current.company.name %>, newest first. Entries can't be edited or deleted. Times are UTC.</p>
+
+<%= form_with url: admin_audit_events_path, method: :get, class: "mt-6 mb-4 flex flex-wrap items-end gap-3" do |form| %>
+  <div>
+    <%= form.label :event, "Event", class: "block text-sm font-medium" %>
+    <%= form.select :event, audit_event_options, { include_blank: "All events", selected: @filter.event },
+          class: "mt-1 rounded-md border border-slate-400 bg-white px-3 py-2" %>
+  </div>
+  <div>
+    <%= form.label :actor, "Actor", class: "block text-sm font-medium" %>
+    <%= form.select :actor, @users.map { [ it.name, it.uuid ] }, { include_blank: "Anyone", selected: @filter.actor },
+          class: "mt-1 rounded-md border border-slate-400 bg-white px-3 py-2" %>
+  </div>
+  <div>
+    <%= form.label :invoice, "Invoice ID", class: "block text-sm font-medium" %>
+    <%= form.text_field :invoice, value: @filter.invoice, placeholder: "UUID from the invoice link",
+          class: "mt-1 w-80 rounded-md border border-slate-400 bg-white px-3 py-2" %>
+  </div>
+  <div>
+    <%= form.label :from, "From", class: "block text-sm font-medium" %>
+    <%= form.date_field :from, value: @filter.from, class: "mt-1 rounded-md border border-slate-400 bg-white px-3 py-2" %>
+  </div>
+  <div>
+    <%= form.label :to, "To", class: "block text-sm font-medium" %>
+    <%= form.date_field :to, value: @filter.to, class: "mt-1 rounded-md border border-slate-400 bg-white px-3 py-2" %>
+  </div>
+  <%= render "shared/button", label: "Filter", variant: :secondary, submits_with: "Filtering…" %>
+  <%= link_to "Clear filters", admin_audit_events_path, class: "self-center text-sm font-semibold text-brand underline" %>
+<% end %>
+
+<%= render layout: "shared/data_table", locals: {
+      caption: "Audit events",
+      columns: [ { label: "Time (UTC)" }, { label: "Actor" }, { label: "Action" }, { label: "Subject" }, { label: "Change" }, { label: "Reason" } ],
+      rows: @entries, empty_message: "No audit events match." } do |entry| %>
+  <td class="px-4 py-3 whitespace-nowrap"><%= date_tag(entry.created_at) %></td>
+  <td class="px-4 py-3"><%= entry.actor.name %> (<%= entry.actor_role %>)</td>
+  <td class="px-4 py-3"><%= audit_action_label(entry) %></td>
+  <% if entry.role_change? %>
+    <td class="px-4 py-3"><%= entry.target_user.name %></td>
+    <td class="px-4 py-3"><%= user_role_label(entry.from_value) %> <span aria-hidden="true">→</span><span class="sr-only"> to </span> <%= user_role_label(entry.to_value) %></td>
+  <% else %>
+    <td class="px-4 py-3"><%= link_to entry.invoice.vendor_name, entry.invoice, class: "font-medium text-brand underline hover:text-brand-strong" %></td>
+    <td class="px-4 py-3"><%= invoice_status_label(entry.from_value.downcase) %> <span aria-hidden="true">→</span><span class="sr-only"> to </span> <%= invoice_status_label(entry.to_value.downcase) %></td>
+  <% end %>
+  <td class="px-4 py-3"><%= entry.reason %></td>
+<% end %>
+
+<% if @page > 1 || @next_page %>
+  <nav aria-label="Pagination" class="mt-4 flex items-center gap-4 text-sm">
+    <% if @page > 1 %>
+      <%= link_to "Previous page", admin_audit_events_path(@filter.to_h.merge(page: @page - 1)), class: "font-semibold text-brand underline" %>
+    <% end %>
+    <span>Page <%= @page %></span>
+    <% if @next_page %>
+      <%= link_to "Next page", admin_audit_events_path(@filter.to_h.merge(page: @next_page)), class: "font-semibold text-brand underline" %>
+    <% end %>
+  </nav>
+<% end %>

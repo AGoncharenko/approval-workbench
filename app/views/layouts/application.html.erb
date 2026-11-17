@@ -30,6 +30,12 @@
         </p>
         <% if authenticated? %>
           <div class="flex flex-wrap items-center gap-4 text-sm">
+            <% if Current.user.admin? %>
+              <nav aria-label="Admin" class="flex gap-4 font-semibold">
+                <%= link_to "Users", admin_users_path, class: "text-brand underline hover:text-brand-strong" %>
+                <%= link_to "Audit history", admin_audit_events_path, class: "text-brand underline hover:text-brand-strong" %>
+              </nav>
+            <% end %>
             <p>Signed in as <strong><%= Current.user.name %></strong> (<%= Current.user.role %>) at <%= Current.company.name %></p>
             <%= form_with url: session_path, method: :delete do %>
               <%= render "shared/button", label: "Sign out", variant: :secondary, submits_with: "Signing out…" %>

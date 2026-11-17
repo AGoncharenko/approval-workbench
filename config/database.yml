@@ -18,6 +18,8 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  # db/structure.sql, not schema.rb: the audit triggers, trigger function and audit_entries view only survive a SQL dump.
+  schema_format: sql
 
 
 development:
@@ -98,11 +100,14 @@ production:
     <<: *primary_production
     database: workbench_production_cache
     migrations_paths: db/cache_migrate
+    schema_format: ruby
   queue:
     <<: *primary_production
     database: workbench_production_queue
     migrations_paths: db/queue_migrate
+    schema_format: ruby
   cable:
     <<: *primary_production
     database: workbench_production_cable
     migrations_paths: db/cable_migrate
+    schema_format: ruby

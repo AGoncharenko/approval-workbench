@@ -3,6 +3,11 @@ Rails.application.routes.draw do
   resources :invoices do
     resources :transitions, only: :create
   end
+  # No show or edit page: the role is the only editable field, changed inline from the list.
+  namespace :admin do
+    resources :users, only: %i[ index update ]
+    resources :audit_events, only: :index
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

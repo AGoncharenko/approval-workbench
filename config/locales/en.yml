@@ -48,6 +48,26 @@ en:
       saved: "Draft saved. Only you can see it until you submit it for approval."
       discarded: "Draft for %{vendor} discarded."
       conflict: "Not saved: this draft changed since you opened it (for example in another tab). These are its current values at version %{version}; nothing was overwritten."
+  users:
+    roles:
+      requester: "Requester"
+      approver: "Approver"
+      admin: "Admin"
+  admin:
+    forbidden: "Only admins can open the admin pages. Nothing was changed."
+    users:
+      changed: "%{name} changed from %{from} to %{to}. The new role applies from their next request."
+      unchanged: "No change: %{name} is already %{role}."
+      forbidden: "Not allowed: you can't change your own role. Another admin can. Nothing was changed."
+      not_found:
+        heading: "User not available"
+        message: "This user doesn't exist, or isn't in your company. Nothing was changed."
+      errors:
+        role: "Not changed: choose Requester, Approver or Admin."
+        last_admin: "Not changed: a company needs at least one admin."
+    audit_events:
+      transition: "Invoice events (all)"
+      role_change: "Role change"
   activerecord:
     errors:
       models:

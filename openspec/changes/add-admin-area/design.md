@@ -42,7 +42,7 @@
   - Alternative 2: `REVOKE UPDATE, DELETE` from the app role. Stronger, but on Render's free Postgres the app connects as the database owner, so it owns the table. Noted for production with separate migration and runtime roles.
   - Truncate isn't blocked: test cleanup uses it, and it requires owner privileges.
 - **No audit gem.** These were considered and rejected:
-  - **paper_trail and audited:** they rely on ActiveRecord callbacks, so they miss the `update_all` conditional UPDATE in `TransitionInvoice`. They record column diffs, not business events with role-at-the-time and a reason. Their polymorphic `versions` table has no real FK, no tenant column and no immutability.
+  - **paper_trail and audited:** they rely on ActiveRecord callbacks, so any `update_all`, `delete_all` or raw SQL write goes unrecorded. They record column diffs, not business events with role-at-the-time and a reason. Their polymorphic `versions` table has no real FK, no tenant column and no immutability.
   - **logidze:** it uses triggers, but keeps history as editable JSON inside the audited row.
 
   Explicit inserts in the same transaction, plus composite FKs and a trigger, give every guarantee the brief asks for, in code that's owned and testable.

@@ -1,0 +1,28 @@
+<% content_for :title, "Users" %>
+<h1 class="text-2xl font-bold">Users</h1>
+<p class="mt-1 mb-6 text-slate-700">Everyone at <%= Current.company.name %>. A role change applies from the user's next request, without signing them out, and is recorded in the <%= link_to "audit history", admin_audit_events_path, class: "font-semibold text-brand underline hover:text-brand-strong" %>.</p>
+
+<%= render layout: "shared/data_table", locals: {
+      caption: "Users and roles", columns: [ { label: "Name" }, { label: "Email" }, { label: "Role" } ],
+      rows: @users, empty_message: "No users." } do |user| %>
+  <td class="px-4 py-3 font-medium"><%= user.name %></td>
+  <td class="px-4 py-3"><%= user.email_address %></td>
+  <td class="px-4 py-3">
+    <% if user == Current.user %>
+      <%= user_role_label(user.role) %> <span class="text-slate-600">(you)</span>
+    <% else %>
+      <% error = @row_errors&.dig(user.uuid) %>
+      <%# namespace: unique ids per row, so each label points at its own select. %>
+      <%= form_with model: user, url: admin_user_path(user), method: :patch, namespace: "user_#{user.uuid}", class: "flex flex-wrap items-center gap-2" do |form| %>
+        <%= form.label :role, "Role for #{user.name}", class: "sr-only" %>
+        <%= form.select :role, user_role_options, {},
+              aria: { invalid: error.present?, describedby: (form.field_id(:role, :error) if error) },
+              class: "rounded-md border bg-white px-3 py-2 #{error ? "border-rejected-fg" : "border-slate-400"}" %>
+        <%= render "shared/button", label: "Save role", variant: :secondary, submits_with: "Saving…", "aria-label": "Save role for #{user.name}" %>
+        <% if error %>
+          <p id="<%= form.field_id(:role, :error) %>" class="basis-full text-sm text-rejected-fg"><%= error %></p>
+        <% end %>
+      <% end %>
+    <% end %>
+  </td>
+<% end %>
