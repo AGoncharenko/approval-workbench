@@ -2,25 +2,25 @@
 
 ## 1. Health and logging
 
-- [ ] 1.1 `HealthController#show` at `/up`: 200 when the DB responds, 503 when it doesn't, no authentication required. Verify: `spec/requests/health_spec.rb` covers both cases, with the connection error stubbed.
-- [ ] 1.2 Request id log tag, user and company UUID tags, and `filter_parameters` with `:idempotency_key`. Verify: `spec/requests/logging_spec.rb` captures the log and checks the tags are present and the password and key are filtered.
+- [x] 1.1 `HealthController#show` at `/up`: 200 when the DB responds, 503 when it doesn't, no authentication required. Verify: `spec/requests/health_spec.rb` covers both cases, with the connection error stubbed.
+- [x] 1.2 Request id log tag, user and company UUID tags, and `filter_parameters` with `:idempotency_key`. Verify: `spec/requests/logging_spec.rb` captures the log and checks the tags are present and the password and key are filtered.
 
 ## 2. Production configuration
 
-- [ ] 2.1 Single-database production: `database.yml` uses `DATABASE_URL` only. Solid Cache, Queue and Cable schemas become regular migrations on the primary database, with `connects_to` removed. Verify: `RAILS_ENV=production bin/rails db:prepare` against an empty local PG 18 creates all `solid_*` tables in one database.
-- [ ] 2.2 `config/queue.yml` polling at 1 s, `plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]` kept, and `config/cable.yml` production on `solid_cable`. Verify: the production-mode boot from 2.1 starts Puma with Solid Queue and no Redis reference (`grep -ri redis config` is empty).
-- [ ] 2.3 `assume_ssl` and `force_ssl` from ENV (default true), with `/up` exempt from the redirect. Verify: `spec/requests/health_spec.rb` expects `/up` over HTTP to return 200, not 301, in a production-like config.
-- [ ] 2.4 `bin/docker-entrypoint` runs `db:prepare` then `db:seed` before `exec` for `./bin/rails server`. Verify: two consecutive `docker run` boots against the same DB give a 200 from `/up`, and the seed counts are unchanged after the second.
+- [x] 2.1 Single-database production: `database.yml` uses `DATABASE_URL` only. Solid Cache, Queue and Cable schemas become regular migrations on the primary database, with `connects_to` removed. Verify: `RAILS_ENV=production bin/rails db:prepare` against an empty local PG 18 creates all `solid_*` tables in one database.
+- [x] 2.2 `config/queue.yml` polling at 1 s, `plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]` kept, and `config/cable.yml` production on `solid_cable`. Verify: the production-mode boot from 2.1 starts Puma with Solid Queue and no Redis reference (`grep -ri redis config` is empty).
+- [x] 2.3 `assume_ssl` and `force_ssl` from ENV (default true), with `/up` exempt from the redirect. Verify: `spec/requests/health_spec.rb` expects `/up` over HTTP to return 200, not 301, in a production-like config.
+- [x] 2.4 `bin/docker-entrypoint` runs `db:prepare` then `db:seed` before `exec` for `./bin/rails server`. Verify: two consecutive `docker run` boots against the same DB give a 200 from `/up`, and the seed counts are unchanged after the second.
 
 ## 3. Compose fallback
 
-- [ ] 3.1 `docker-compose.yml`: the app plus `postgres:18` (volume at `/var/lib/postgresql`), production mode, SSL flags off and a labelled local `SECRET_KEY_BASE`. Verify: `docker compose up --build` gives `curl -fsS localhost:3000/up` returning 200 and demo sign-in working.
+- [x] 3.1 `docker-compose.yml`: the app plus `postgres:18` (volume at `/var/lib/postgresql`), production mode, SSL flags off and a labelled local `SECRET_KEY_BASE`. Verify: `docker compose up --build` gives `curl -fsS localhost:3000/up` returning 200 and demo sign-in working.
 
 ## 4. Render
 
 - [ ] 4.1 `render.yaml` Blueprint:
   - free Postgres 18 database;
-  - free Docker web service with `healthCheckPath: /up` and `dockerCommand: ./bin/rails server`;
+  - free Docker web service with `healthCheckPath: /up`, using the image's own `CMD` (`./bin/rails server`) rather than a `dockerCommand` override;
   - `DATABASE_URL` from `connectionString`;
   - `RAILS_MASTER_KEY` and `DEMO_PASSWORD` as `sync: false`;
   - `WEB_CONCURRENCY=0`, `RAILS_MAX_THREADS=3`, `SOLID_QUEUE_IN_PUMA=1`.
@@ -54,7 +54,7 @@
 
 ## 6. Secrets hygiene
 
-- [ ] 6.1 Confirm `config/master.key` and `.env*` are git-ignored, and no secrets are tracked. Verify: `git ls-files | grep -E 'master.key|\.env'` returns nothing.
+- [x] 6.1 Confirm `config/master.key` and `.env*` are git-ignored, and no secrets are tracked. Verify: `git ls-files | grep -E 'master.key|\.env'` returns nothing.
 
 ## 7. Submission documents (required by `docs/brief/CANDIDATE-GUIDE.md`)
 
@@ -68,7 +68,7 @@
   - **known limitations:** linked to `DECISIONS.md`.
 
   Verify: every template heading is present and filled, and every command in the README runs as written.
-- [ ] 7.2 Complete `DECISIONS.md`:
+- [x] 7.2 Complete `DECISIONS.md`:
   - **assumption ledger:** for example: a single approval step, one company per user, drafts private to their author, demo password auth;
   - **key decisions:**
     - optimistic version vs. row lock;
@@ -91,4 +91,4 @@
     - session expiry and cleanup: the generator's cookie is permanent, so sessions last until sign-out. Add an idle and absolute timeout, plus a recurring Solid Queue job that deletes expired `sessions` rows.
 
   Verify: no template placeholder text remains, and every brief "non-negotiable behavior" maps to a decision or a spec.
-- [ ] 7.3 Brief traceability check: a table in the README maps each non-negotiable and edge case from `docs/brief/h1-approval-workbench.md` to the spec requirement and the RSpec file that proves it. Verify: every row links to an existing spec file, and the specs are green.
+- [x] 7.3 Brief traceability check: a table in the README maps each non-negotiable and edge case from `docs/brief/h1-approval-workbench.md` to the spec requirement and the RSpec file that proves it. Verify: every row links to an existing spec file, and the specs are green.

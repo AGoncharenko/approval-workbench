@@ -36,7 +36,6 @@ Render free-tier facts, from Render's docs as of November 2026:
       runtime: docker
       plan: free
       healthCheckPath: /up
-      dockerCommand: ./bin/rails server
       envVars:
         - key: DATABASE_URL
           fromDatabase: { name: workbench-db, property: connectionString }
@@ -52,7 +51,7 @@ Render free-tier facts, from Render's docs as of November 2026:
           value: "1"
   ```
   - The exact nesting is confirmed with Render's Blueprint validation when it's created.
-  - `dockerCommand` runs Puma directly, so it binds `$PORT`. The image's default command is Thruster on port 80, which Render doesn't need because its edge already does TLS and compression. The entrypoint's `db:prepare` guard still matches `./bin/rails server`.
+  - The image's default `CMD` is `./bin/rails server`, so Puma binds `$PORT` directly. Thruster (the generated default, on port 80) is dropped because Render's edge already does TLS and compression. No `dockerCommand` is set: Render's docs don't say whether an override still runs the image's `ENTRYPOINT`, and the entrypoint is what migrates and seeds.
   - `WEB_CONCURRENCY=0` gives single-process Puma, which fits in 512 MB.
 - **Start-time provisioning.** `bin/docker-entrypoint` runs `db:prepare`, then `db:seed`, before `exec`. Both are idempotent, which the seeds spec in `demo-data` requires. That replaces the pre-deploy command and shell, which free plans lack.
 - **One database for everything.** `config/database.yml` production gets `primary` from `DATABASE_URL` only.

@@ -1,8 +1,9 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database
-if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+# Render's free tier has no shell or pre-deploy step, so starting the server migrates and seeds first.
+# Both are idempotent; the match also covers the command arriving wrapped (thrust or "sh -c").
+if [[ "$*" == *"bin/rails server" ]]; then
+  ./bin/rails db:prepare db:seed
 fi
 
 exec "${@}"

@@ -36,6 +36,12 @@ module Workbench
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Every request log line carries the request id; ApplicationController adds the user and company UUIDs.
+    config.log_tags = [ :request_id ]
+
+    # Only used where force_ssl is on (production): Render probes /up over plain HTTP, so it must not redirect.
+    config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+
     # Don't generate system test files.
     config.generators.system_tests = nil
   end

@@ -1,0 +1,39 @@
+# Local production-mode fallback for reviewers: `docker compose up --build`, then open http://localhost:3000
+# (set APP_PORT to use another host port). Needs no account and no secret; the entrypoint migrates and seeds.
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: workbench
+      POSTGRES_PASSWORD: workbench-local-only
+      POSTGRES_DB: workbench_production
+    volumes:
+      # The PG 18 image keeps its data in a versioned 18/docker subdirectory of /var/lib/postgresql.
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbench -d workbench_production"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    # No host port: only the app container talks to this database.
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://workbench:workbench-local-only@db:5432/workbench_production
+      # LOCAL-ONLY, NOT A SECRET: a published placeholder so compose needs no credentials. Never used on Render.
+      SECRET_KEY_BASE: local-compose-only-not-a-secret-0000000000000000000000000000000000000000000000000000000000000000
+      RAILS_FORCE_SSL: "false"
+      RAILS_ASSUME_SSL: "false"
+      SOLID_QUEUE_IN_PUMA: "1"
+      WEB_CONCURRENCY: "0"
+      RAILS_MAX_THREADS: "3"
+      PORT: "3000"
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+volumes:
+  db-data:

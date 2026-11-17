@@ -34,7 +34,7 @@ RSpec.describe "Sessions" do
   end
 
   it "leaves the health check public" do
-    get rails_health_check_path
+    get health_check_path
     expect(response).to have_http_status(:ok)
   end
 
